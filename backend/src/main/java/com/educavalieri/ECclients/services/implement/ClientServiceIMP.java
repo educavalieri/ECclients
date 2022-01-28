@@ -11,6 +11,7 @@ import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import javax.persistence.EntityNotFoundException;
 import java.util.Optional;
@@ -23,19 +24,22 @@ public class ClientServiceIMP implements ClientServiceInterface {
 
 
     @Override
+    @Transactional(readOnly = true)
     public Page<ClientDTO> findAllService(PageRequest pageRequest) {
         Page<Client> entity = clientRepository.findAll(pageRequest);
         return entity.map(x -> new ClientDTO(x));
     }
 
     @Override
+    @Transactional
     public ClientDTO findByIdService(Long id) {
         Optional<Client> entity = clientRepository.findById(id);
-        Client dto = entity.orElseThrow(() -> new ResourceNotFoundException("Entity not found"));
-        return null;
+        Client client = entity.orElseThrow(() -> new ResourceNotFoundException("Entity not found"));
+        return new ClientDTO(client);
     }
 
     @Override
+    @Transactional
     public ClientDTO saveService(ClientDTO dto) {
         Client entity = new Client();
         insertEntity(entity, dto);
@@ -44,6 +48,7 @@ public class ClientServiceIMP implements ClientServiceInterface {
     }
 
     @Override
+    @Transactional
     public ClientDTO updateService(Long id, ClientDTO dto) {
         try {
             Client entity = clientRepository.findById(id).get();
@@ -56,6 +61,7 @@ public class ClientServiceIMP implements ClientServiceInterface {
     }
 
     @Override
+    @Transactional
     public void deleteService(Long id) {
         try {
             clientRepository.deleteById(id);
