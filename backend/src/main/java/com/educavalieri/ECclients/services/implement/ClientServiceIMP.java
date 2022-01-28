@@ -8,12 +8,14 @@ import com.educavalieri.ECclients.services.exceptions.ResourceNotFoundException;
 import com.educavalieri.ECclients.services.interfaces.ClientServiceInterface;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataIntegrityViolationException;
+import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import javax.persistence.EntityNotFoundException;
+import java.util.NoSuchElementException;
 import java.util.Optional;
 
 @Service
@@ -34,7 +36,7 @@ public class ClientServiceIMP implements ClientServiceInterface {
     @Transactional
     public ClientDTO findByIdService(Long id) {
         Optional<Client> entity = clientRepository.findById(id);
-        Client client = entity.orElseThrow(() -> new ResourceNotFoundException("Entity not found"));
+        Client client = entity.orElseThrow(() -> new ResourceNotFoundException("Entity not found" + id));
         return new ClientDTO(client);
     }
 
@@ -57,6 +59,8 @@ public class ClientServiceIMP implements ClientServiceInterface {
             return new ClientDTO(entity);
         } catch (EntityNotFoundException e) {
             throw new ResourceNotFoundException("Id not found" +id);
+        } catch (NoSuchElementException e) {
+            throw new ResourceNotFoundException("Id not found" +id);
         }
     }
 
@@ -69,6 +73,8 @@ public class ClientServiceIMP implements ClientServiceInterface {
             throw new ResourceNotFoundException("Id not found" +id);
         } catch (DataIntegrityViolationException e){
             throw new DataBaseException("Integrity violation");
+        } catch (EmptyResultDataAccessException e){
+            throw new ResourceNotFoundException("Id not found " +id);
         }
 
     }
