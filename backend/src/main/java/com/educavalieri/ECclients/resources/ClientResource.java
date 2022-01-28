@@ -9,6 +9,9 @@ import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
+
+import java.net.URI;
 
 @RestController
 @RequestMapping(value = "clients" )
@@ -38,7 +41,12 @@ public class ClientResource {
     @RequestMapping(value = "/save", method = RequestMethod.POST)
     public ResponseEntity<ClientDTO> save(@RequestBody ClientDTO dto){
         dto = clientServiceIMP.saveService(dto);
-        return ResponseEntity.ok().body(dto);
+        URI uri = ServletUriComponentsBuilder
+                .fromCurrentRequestUri()
+                .path("/{id}")
+                .buildAndExpand(dto.getId())
+                .toUri();
+        return ResponseEntity.created(uri).body(dto);
     }
     @RequestMapping(value = "/update{id}", method = RequestMethod.PUT)
     public ResponseEntity<ClientDTO> update(@PathVariable("id") Long id,
